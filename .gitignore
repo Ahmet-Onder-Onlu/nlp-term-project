@@ -37,3 +37,6 @@ paper/*.fls
 
 # transient installer files
 mamba*
+
+# derived archive (rebuild from paper/)
+reports/*.zip
