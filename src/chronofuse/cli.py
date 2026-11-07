@@ -1,9 +1,10 @@
 """Command-line interface.
 
-    chronofuse build    --config configs/base.yaml --domains iota
-    chronofuse run      --config configs/experiments/bm25.yaml --split dev --subtrack 1a --domains all
-    chronofuse evaluate --run results/runs/<exp>/1a_dev --split dev --subtrack 1a
+chronofuse build    --config configs/base.yaml --domains iota
+chronofuse run      --config configs/experiments/bm25.yaml --split dev --subtrack 1a --domains all
+chronofuse evaluate --run results/runs/<exp>/1a_dev --split dev --subtrack 1a
 """
+
 from __future__ import annotations
 
 import argparse

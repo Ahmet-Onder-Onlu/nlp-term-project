@@ -10,6 +10,7 @@ scoring, the knowledge graph and the LLM reranker:
 * ``entities``     capitalised multi-word spans (cheap NER); spaCy optional
 * ``n_words``      length
 """
+
 from __future__ import annotations
 
 import re
@@ -24,8 +25,35 @@ from .temporal import extract_temporal
 
 _SENT_RE = re.compile(r"(?<=[.!?])\s+")
 _ENT_RE = re.compile(r"\b([A-Z][a-zA-Z0-9]+(?:\s+(?:of|de|the|and|&)?\s*[A-Z][a-zA-Z0-9]+){0,4})\b")
-_STOP_ENTS = {"The", "This", "That", "It", "In", "On", "A", "An", "If", "I", "We", "You", "He", "She",
-              "They", "But", "And", "For", "As", "At", "To", "Is", "Are", "What", "When", "How", "Why"}
+_STOP_ENTS = {
+    "The",
+    "This",
+    "That",
+    "It",
+    "In",
+    "On",
+    "A",
+    "An",
+    "If",
+    "I",
+    "We",
+    "You",
+    "He",
+    "She",
+    "They",
+    "But",
+    "And",
+    "For",
+    "As",
+    "At",
+    "To",
+    "Is",
+    "Are",
+    "What",
+    "When",
+    "How",
+    "Why",
+}
 
 
 @dataclass
@@ -57,9 +85,15 @@ def build_profile(doc: Document, desc_sentences: int = 2) -> DocProfile:
     title = (text.split("\n", 1)[0] if "\n" in text[:300] else sents[0])[:200]
     tp = extract_temporal(text)
     return DocProfile(
-        id=doc.id, title=title, description=" ".join(sents[:desc_sentences])[:500],
-        years=tp.years, granularity=tp.granularity, explicit=tp.explicit[:20],
-        relative=tp.relative[:20], entities=extract_entities(text), n_words=len(text.split()),
+        id=doc.id,
+        title=title,
+        description=" ".join(sents[:desc_sentences])[:500],
+        years=tp.years,
+        granularity=tp.granularity,
+        explicit=tp.explicit[:20],
+        relative=tp.relative[:20],
+        entities=extract_entities(text),
+        n_words=len(text.split()),
     )
 
 

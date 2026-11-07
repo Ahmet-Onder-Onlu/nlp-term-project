@@ -1,4 +1,5 @@
 """Passage-level BM25 via ``bm25s`` (Lucene scoring variant), with MaxP to documents."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -43,10 +44,14 @@ class BM25Index(Retriever):
         return obj
 
     # ----------------------------------------------------------------- search
-    def search(self, queries: list[str], k: int = 100, passage_k: int | None = None) -> list[Ranking]:
+    def search(
+        self, queries: list[str], k: int = 100, passage_k: int | None = None
+    ) -> list[Ranking]:
         assert self.model is not None, "index not built/loaded"
         passage_k = min(passage_k or k * 5, len(self.pids))
-        q_tokens = bm25s.tokenize(queries, stopwords="en", stemmer=self.stemmer, show_progress=False)
+        q_tokens = bm25s.tokenize(
+            queries, stopwords="en", stemmer=self.stemmer, show_progress=False
+        )
         idx, scores = self.model.retrieve(q_tokens, k=passage_k, show_progress=False)
         out: list[Ranking] = []
         for row_i, row_s in zip(idx, scores):

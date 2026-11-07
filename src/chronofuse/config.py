@@ -4,6 +4,7 @@ Configs are YAML files. An experiment file may declare ``inherit: <path>`` to
 extend a base config; nested mappings are merged recursively, so an experiment
 only states what it changes.
 """
+
 from __future__ import annotations
 
 import copy

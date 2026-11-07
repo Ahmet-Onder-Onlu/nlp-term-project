@@ -5,6 +5,7 @@
   note the starter-kit ``scorer.py`` silently skips them).
 * Macro average: mean within each domain, then mean over domains.
 """
+
 from __future__ import annotations
 
 from collections.abc import Iterable
@@ -75,9 +76,11 @@ def read_trec(path: str | Path) -> Run:
 def summarize(per_domain_scores: dict[str, dict[str, float]]) -> dict:
     """``per_domain_scores``: domain -> qid -> nDCG. Returns per-domain means and macro."""
     dom = {d: (sum(v.values()) / len(v) if v else 0.0) for d, v in per_domain_scores.items()}
-    return {"per_domain": {d: round(s, 4) for d, s in dom.items()},
-            "macro_ndcg@10": round(macro_average(dom), 4),
-            "num_topics": sum(len(v) for v in per_domain_scores.values())}
+    return {
+        "per_domain": {d: round(s, 4) for d, s in dom.items()},
+        "macro_ndcg@10": round(macro_average(dom), 4),
+        "num_topics": sum(len(v) for v in per_domain_scores.values()),
+    }
 
 
 def iter_domains(selected: Iterable[str] | str, all_domains: list[str]) -> list[str]:

@@ -75,6 +75,9 @@ Key ideas:
 
 ## Setup
 
+> **CPU-only machine?** Install the CPU build of PyTorch first; this avoids ~3 GB of CUDA wheels:
+> `pip install torch --index-url https://download.pytorch.org/whl/cpu`
+
 ```bash
 conda env create -f environment.yml      # Python 3.11 + JDK 21 + requirements.txt
 conda activate reteco

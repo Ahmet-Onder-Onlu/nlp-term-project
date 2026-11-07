@@ -11,6 +11,7 @@ they share few query terms — the core failure mode of BM25 on TEMPO.
 The graph lives in NetworkX (in-process). ``export_neo4j`` writes the same
 graph to a Neo4j database for inspection / Cypher queries.
 """
+
 from __future__ import annotations
 
 import pickle
@@ -54,7 +55,9 @@ class TemporalKG:
                     self.g.add_edge(u, v, rel="ACTIVE_IN", weight=w)
         return self
 
-    def search(self, entities: list[str], years: list[int], k: int = 100, alpha: float = 0.85) -> list[tuple[str, float]]:
+    def search(
+        self, entities: list[str], years: list[int], k: int = 100, alpha: float = 0.85
+    ) -> list[tuple[str, float]]:
         seeds = [f"ent:{_norm_ent(e)}" for e in entities] + [f"year:{y}" for y in years]
         seeds = [s for s in seeds if s in self.g]
         if not seeds:
@@ -84,7 +87,9 @@ class TemporalKG:
             obj.g = pickle.load(f)
         return obj
 
-    def export_neo4j(self, uri: str, user: str, password: str, domain: str, batch: int = 5000) -> None:
+    def export_neo4j(
+        self, uri: str, user: str, password: str, domain: str, batch: int = 5000
+    ) -> None:
         from neo4j import GraphDatabase
 
         edges = [(u, v, d.get("rel", "REL")) for u, v, d in self.g.edges(data=True)]
@@ -93,4 +98,6 @@ class TemporalKG:
                 s.run(
                     "UNWIND $rows AS r MERGE (a:Node {key:r[0], domain:$d}) "
                     "MERGE (b:Node {key:r[1], domain:$d}) MERGE (a)-[:LINK {rel:r[2]}]->(b)",
-                    rows=edges[i:i + batch], d=domain)
+                    rows=edges[i : i + batch],
+                    d=domain,
+                )

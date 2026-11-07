@@ -13,6 +13,7 @@ Layout (per domain)::
 ``guidance`` is only available for train/dev. It is used as supervision /
 few-shot material for the query analyzer, never as an input at test time.
 """
+
 from __future__ import annotations
 
 import html
@@ -25,8 +26,19 @@ from pathlib import Path
 import orjson
 
 TRACK1_DOMAINS = [
-    "bitcoin", "cardano", "economics", "genealogy", "history", "hsm", "iota",
-    "law", "monero", "politics", "quant", "travel", "workplace",
+    "bitcoin",
+    "cardano",
+    "economics",
+    "genealogy",
+    "history",
+    "hsm",
+    "iota",
+    "law",
+    "monero",
+    "politics",
+    "quant",
+    "travel",
+    "workplace",
 ]
 
 _TAG_RE = re.compile(r"<[^>]+>")
@@ -47,15 +59,15 @@ class Document:
 @dataclass
 class Query:
     id: str
-    text: str            # cleaned text (title + body)
-    title: str           # first line of the StackExchange post
+    text: str  # cleaned text (title + body)
+    title: str  # first line of the StackExchange post
     raw: str
     gold_ids: list[str] = field(default_factory=list)
 
 
 @dataclass
 class Step:
-    id: str              # <query_id>_step<n>
+    id: str  # <query_id>_step<n>
     query_id: str
     step: int
     instruction: str
@@ -82,12 +94,20 @@ def load_corpus(data_root: str | Path, domain: str) -> Iterator[Document]:
 def _make_query(rec: dict) -> Query:
     raw = rec["query"]
     title = raw.split("\n", 1)[0].strip()
-    return Query(id=rec["id"], text=clean_html(raw), title=clean_html(title), raw=raw,
-                 gold_ids=list(rec.get("gold_ids", [])))
+    return Query(
+        id=rec["id"],
+        text=clean_html(raw),
+        title=clean_html(title),
+        raw=raw,
+        gold_ids=list(rec.get("gold_ids", [])),
+    )
 
 
 def load_queries(data_root: str | Path, domain: str, split: str) -> list[Query]:
-    return [_make_query(r) for r in _iter_jsonl(domain_dir(data_root, domain) / f"examples_{split}.jsonl")]
+    return [
+        _make_query(r)
+        for r in _iter_jsonl(domain_dir(data_root, domain) / f"examples_{split}.jsonl")
+    ]
 
 
 def load_steps(data_root: str | Path, domain: str, split: str) -> list[Step]:
@@ -95,9 +115,16 @@ def load_steps(data_root: str | Path, domain: str, split: str) -> list[Step]:
     for rec in _iter_jsonl(domain_dir(data_root, domain) / f"steps_{split}.jsonl"):
         q = _make_query(rec)
         for st in rec.get("steps", []):
-            out.append(Step(id=st["step_id"], query_id=rec["id"], step=int(st["step"]),
-                            instruction=st.get("step_instruction", ""), query=q,
-                            gold_ids=list(st.get("gold_ids", []))))
+            out.append(
+                Step(
+                    id=st["step_id"],
+                    query_id=rec["id"],
+                    step=int(st["step"]),
+                    instruction=st.get("step_instruction", ""),
+                    query=q,
+                    gold_ids=list(st.get("gold_ids", [])),
+                )
+            )
     return out
 
 
@@ -108,7 +135,9 @@ def load_guidance(data_root: str | Path, domain: str, split: str) -> dict[str, d
     return {r["id"]: r for r in _iter_jsonl(path)}
 
 
-def load_qrels(data_root: str | Path, domain: str, split: str, steps: bool = False) -> dict[str, dict[str, int]]:
+def load_qrels(
+    data_root: str | Path, domain: str, split: str, steps: bool = False
+) -> dict[str, dict[str, int]]:
     name = f"qrels_steps_{split}.txt" if steps else f"qrels_{split}.txt"
     qrels: dict[str, dict[str, int]] = defaultdict(dict)
     with open(domain_dir(data_root, domain) / name) as f:

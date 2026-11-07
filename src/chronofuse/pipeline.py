@@ -13,6 +13,7 @@ Online (``run``), per query (1a) or step (1b):
                   dense(query), dense(HyDE), KG-PPR(entities, years)
       → weighted RRF → temporal prior → cross-encoder → LLM listwise → TREC run
 """
+
 from __future__ import annotations
 
 import logging
@@ -52,15 +53,21 @@ def build_domain(cfg: Config, domain: str, force: bool = False) -> None:
     need_prof = force or not (out / "profiles.jsonl").exists()
     for doc in tqdm(load_corpus(root, domain), desc=f"[{domain}] read+chunk"):
         if need_bm25 or cfg.get("dense.enabled", False):
-            for p in chunk_document(doc.id, doc.content, ch.get("size", 200), ch.get("overlap", 40),
-                                    ch.get("max_passages", 64)):
+            for p in chunk_document(
+                doc.id,
+                doc.content,
+                ch.get("size", 200),
+                ch.get("overlap", 40),
+                ch.get("max_passages", 64),
+            ):
                 pids.append(p.pid)
                 texts.append(p.text)
         if need_prof:
             profiles.append(build_profile(doc))
             batch.append((doc.id, doc.content))
             if len(batch) >= 5000:
-                store.add_many(batch); batch = []
+                store.add_many(batch)
+                batch = []
     if batch:
         store.add_many(batch)
     log.info("[%s] %d passages", domain, len(pids))
@@ -79,9 +86,13 @@ def build_domain(cfg: Config, domain: str, force: bool = False) -> None:
         from .indexing.dense_index import DenseIndex
 
         d = cfg.get("dense")
-        DenseIndex(model_name=d.get("model"), query_prefix=d.get("query_prefix", ""),
-                   doc_prefix=d.get("doc_prefix", ""), batch_size=d.get("batch_size", 64),
-                   max_seq_length=d.get("max_seq_length", 256)).build(pids, texts).save(out / "dense")
+        DenseIndex(
+            model_name=d.get("model"),
+            query_prefix=d.get("query_prefix", ""),
+            doc_prefix=d.get("doc_prefix", ""),
+            batch_size=d.get("batch_size", 64),
+            max_seq_length=d.get("max_seq_length", 256),
+        ).build(pids, texts).save(out / "dense")
 
 
 # ================================================================= run =====
@@ -99,8 +110,11 @@ class DomainRetriever:
             from .indexing.dense_index import DenseIndex
 
             dc = cfg.get("dense")
-            self.dense = DenseIndex.load(d / "dense", query_prefix=dc.get("query_prefix", ""),
-                                         batch_size=dc.get("batch_size", 64))
+            self.dense = DenseIndex.load(
+                d / "dense",
+                query_prefix=dc.get("query_prefix", ""),
+                batch_size=dc.get("batch_size", 64),
+            )
         if cfg.get("kg.enabled", False):
             from .kg.temporal_kg import TemporalKG
 
@@ -112,8 +126,9 @@ class DomainRetriever:
         if cfg.get("rerank.llm.enabled", False) and llm is not None:
             from .rerank.llm_listwise import LLMListwiseReranker
 
-            self.llm_rr = LLMListwiseReranker(llm, window=cfg.get("rerank.llm.window", 20),
-                                              step=cfg.get("rerank.llm.step", 10))
+            self.llm_rr = LLMListwiseReranker(
+                llm, window=cfg.get("rerank.llm.window", 20), step=cfg.get("rerank.llm.step", 10)
+            )
 
     def retrieve(self, text: str, qa: QueryAnalysis, k: int) -> Ranking:
         cfg, ch = self.cfg, self.cfg.get("channels", {})
@@ -133,19 +148,33 @@ class DomainRetriever:
         if self.kg is not None and ch.get("kg", 0):
             runs["kg"] = self.kg.search(qa.entities, qa.years, k)
 
-        fused = next(iter(runs.values())) if len(runs) == 1 else rrf(runs, weights=dict(ch),
-                                                              k=cfg.get("fusion.rrf_k", 60), top=k)
-        fused = apply_temporal_prior(fused, qa, self.profiles, lam=cfg.get("temporal.lambda", 0.0),
-                                     tolerance=cfg.get("temporal.tolerance", 1))
+        fused = (
+            next(iter(runs.values()))
+            if len(runs) == 1
+            else rrf(runs, weights=dict(ch), k=cfg.get("fusion.rrf_k", 60), top=k)
+        )
+        fused = apply_temporal_prior(
+            fused,
+            qa,
+            self.profiles,
+            lam=cfg.get("temporal.lambda", 0.0),
+            tolerance=cfg.get("temporal.tolerance", 1),
+        )
         if self.ce is not None or self.llm_rr is not None:
             top_n = max(cfg.get("rerank.cross_encoder.top_n", 100), cfg.get("rerank.llm.top_n", 40))
             texts = self.store.get_many([d for d, _ in fused[:top_n]])
             if self.ce is not None:
-                fused = self.ce.rerank(text, fused, texts, self.profiles,
-                                       top_n=cfg.get("rerank.cross_encoder.top_n", 100))
+                fused = self.ce.rerank(
+                    text,
+                    fused,
+                    texts,
+                    self.profiles,
+                    top_n=cfg.get("rerank.cross_encoder.top_n", 100),
+                )
             if self.llm_rr is not None:
-                fused = self.llm_rr.rerank(text, qa, fused, texts, self.profiles,
-                                           top_n=cfg.get("rerank.llm.top_n", 40))
+                fused = self.llm_rr.rerank(
+                    text, qa, fused, texts, self.profiles, top_n=cfg.get("rerank.llm.top_n", 40)
+                )
         return fused
 
 
@@ -175,8 +204,12 @@ def run_domain(cfg: Config, domain: str, split: str, subtrack: str, llm=None) ->
             if st.query_id not in cache:
                 cache[st.query_id] = analyzer.analyze(st.query)
             qa = cache[st.query_id]
-            step_q = Query(id=st.id, text=f"{st.query.title} {st.instruction}", title=st.query.title,
-                           raw=st.query.raw)
+            step_q = Query(
+                id=st.id,
+                text=f"{st.query.title} {st.instruction}",
+                title=st.query.title,
+                raw=st.query.raw,
+            )
             text = step_q.text if cfg.get("steps.include_title", True) else st.instruction
             run[st.id] = dr.retrieve(text, qa, k)
     else:

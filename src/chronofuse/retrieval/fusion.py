@@ -1,11 +1,16 @@
 """Rank fusion: Reciprocal Rank Fusion and normalised weighted CombSUM."""
+
 from __future__ import annotations
 
 from ..indexing.base import Ranking
 
 
-def rrf(rankings: dict[str, Ranking], weights: dict[str, float] | None = None, k: int = 60,
-        top: int = 1000) -> Ranking:
+def rrf(
+    rankings: dict[str, Ranking],
+    weights: dict[str, float] | None = None,
+    k: int = 60,
+    top: int = 1000,
+) -> Ranking:
     """Weighted RRF: score(d) = sum_c w_c / (k + rank_c(d))."""
     weights = weights or {}
     scores: dict[str, float] = {}
@@ -27,8 +32,9 @@ def _minmax(ranking: Ranking) -> dict[str, float]:
     return {d: (s - lo) / span for d, s in ranking}
 
 
-def combsum(rankings: dict[str, Ranking], weights: dict[str, float] | None = None,
-            top: int = 1000) -> Ranking:
+def combsum(
+    rankings: dict[str, Ranking], weights: dict[str, float] | None = None, top: int = 1000
+) -> Ranking:
     weights = weights or {}
     scores: dict[str, float] = {}
     for name, ranking in rankings.items():

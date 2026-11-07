@@ -13,6 +13,7 @@ Two implementations:
   to emit the same annotation schema the benchmark authors used. Guidance is
   never read for the query being analysed.
 """
+
 from __future__ import annotations
 
 import json
@@ -22,8 +23,16 @@ from ..data.reteco import Query
 from ..metadata.profile import extract_entities
 from ..metadata.temporal import extract_temporal
 
-TEMPORAL_INTENTS = ["point_in_time", "period_range", "ongoing_status", "before_after",
-                    "change_over_time", "duration", "recency", "none"]
+TEMPORAL_INTENTS = [
+    "point_in_time",
+    "period_range",
+    "ongoing_status",
+    "before_after",
+    "change_over_time",
+    "duration",
+    "recency",
+    "none",
+]
 
 
 @dataclass
@@ -37,7 +46,7 @@ class QueryAnalysis:
     temporal_events: list[str] = field(default_factory=list)
     entities: list[str] = field(default_factory=list)
     keyword_query: str = ""
-    sub_queries: list[str] = field(default_factory=list)   # retrieval plan steps
+    sub_queries: list[str] = field(default_factory=list)  # retrieval plan steps
     hyde_passage: str = ""
     summary: str = ""
 
@@ -56,15 +65,20 @@ class RuleQueryAnalyzer:
     def analyze(self, q: Query) -> QueryAnalysis:
         tp = extract_temporal(q.text)
         return QueryAnalysis(
-            qid=q.id, is_temporal=bool(tp.years or tp.relative),
+            qid=q.id,
+            is_temporal=bool(tp.years or tp.relative),
             temporal_intent="point_in_time" if tp.years else ("recency" if tp.relative else "none"),
-            granularity=tp.granularity, year_window=tp.span,
-            key_time_anchors=tp.explicit + tp.relative, entities=extract_entities(q.text, 10),
-            keyword_query=q.title, summary=q.title,
+            granularity=tp.granularity,
+            year_window=tp.span,
+            key_time_anchors=tp.explicit + tp.relative,
+            entities=extract_entities(q.text, 10),
+            keyword_query=q.title,
+            summary=q.title,
         )
 
 
-_SYSTEM = """You are a temporal information-retrieval analyst. Given a user question from a \
+_SYSTEM = (
+    """You are a temporal information-retrieval analyst. Given a user question from a \
 StackExchange-style forum, produce a JSON object describing its temporal information need and \
 a retrieval plan. Fields:
 - is_temporal (bool)
@@ -79,7 +93,9 @@ implicit periods from events, e.g. "the Mt. Gox collapse" -> [2014, 2014])
 - sub_queries: 2-4 retrieval steps, each a self-contained search query
 - hyde_passage: a ~80-word hypothetical passage that would answer the question, with dates
 - summary: one sentence
-Return ONLY JSON.""" % TEMPORAL_INTENTS
+Return ONLY JSON."""
+    % TEMPORAL_INTENTS
+)
 
 
 def _guidance_to_target(rec: dict) -> dict:
@@ -118,16 +134,24 @@ class LLMQueryAnalyzer:
         except Exception:  # noqa: BLE001 - degrade gracefully to rules
             return base
         yw = out.get("year_window")
-        year_window = tuple(int(x) for x in yw) if isinstance(yw, list) and len(yw) == 2 and all(
-            isinstance(x, (int, float)) for x in yw) else base.year_window
+        year_window = (
+            tuple(int(x) for x in yw)
+            if isinstance(yw, list)
+            and len(yw) == 2
+            and all(isinstance(x, (int, float)) for x in yw)
+            else base.year_window
+        )
         return QueryAnalysis(
-            qid=q.id, is_temporal=bool(out.get("is_temporal", base.is_temporal)),
+            qid=q.id,
+            is_temporal=bool(out.get("is_temporal", base.is_temporal)),
             temporal_intent=out.get("temporal_intent", base.temporal_intent),
-            granularity=out.get("granularity", base.granularity), year_window=year_window,
+            granularity=out.get("granularity", base.granularity),
+            year_window=year_window,
             key_time_anchors=out.get("key_time_anchors", []) or base.key_time_anchors,
             temporal_events=out.get("temporal_events", []),
             entities=out.get("entities", []) or base.entities,
             keyword_query=out.get("keyword_query", "") or base.keyword_query,
             sub_queries=[s for s in out.get("sub_queries", []) if isinstance(s, str)][:4],
-            hyde_passage=out.get("hyde_passage", ""), summary=out.get("summary", ""),
+            hyde_passage=out.get("hyde_passage", ""),
+            summary=out.get("summary", ""),
         )
