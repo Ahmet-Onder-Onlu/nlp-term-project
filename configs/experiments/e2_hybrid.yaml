@@ -1,0 +1,13 @@
+# E2: hybrid sparse + dense + temporal KG, fused with weighted RRF.
+inherit: ../base.yaml
+name: e2_hybrid
+dense:
+  enabled: true
+kg:
+  enabled: true
+channels:
+  bm25_query: 1.0
+  dense_query: 1.0
+  kg: 0.3
+temporal:
+  lambda: 0.15

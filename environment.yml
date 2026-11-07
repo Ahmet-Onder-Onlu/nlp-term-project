@@ -1,0 +1,9 @@
+name: reteco
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - openjdk=21          # required by pyserini (Lucene)
+  - pip:
+      - -r requirements.txt

@@ -1,0 +1,14 @@
+\begin{abstract}
+Temporal reasoning-intensive retrieval requires finding passages that are not only topically
+relevant but also aligned with the time periods a question depends on, a setting where lexical
+retrievers perform poorly (BM25 reaches only 0.115 nDCG@10 on the RETECO Track~1 development set).
+We present \sys, our system for Sub-tracks~1a and~1b of SemEval-2027 Task~1 (RETECO).
+\sys (i)~extracts temporal and entity metadata from every document and stores it alongside
+sparse, dense and knowledge-graph indexes; (ii)~analyses each query with an LLM prompted by
+\emph{guidance-distilled} demonstrations that reproduce the benchmark's temporal annotation schema
+(intent, anchors, events, year window, retrieval plan); (iii)~retrieves through six complementary
+channels fused with weighted reciprocal rank fusion and a temporal-alignment prior; and
+(iv)~reranks with a metadata-augmented cross-encoder followed by a temporal-aware listwise LLM.
+\sys reaches \todo{X} nDCG@10 on 1a and \todo{Y} on 1b (dev), improving over BM25 by
+\todo{Z} points; ablations show \todo{key finding}. Code is available at \todo{URL}.
+\end{abstract}

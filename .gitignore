@@ -1,0 +1,39 @@
+# data & artifacts (large / licensed; reproducible via scripts)
+data/raw/
+data/processed/*
+data/indexes/*
+!data/**/.gitkeep
+results/runs/*
+results/metrics/*
+!results/**/.gitkeep
+.cache/
+third_party/
+
+# python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.pytest_cache/
+.ruff_cache/
+
+# secrets
+.env
+
+# latex
+paper/*.aux
+paper/*.bbl
+paper/*.blg
+paper/*.log
+paper/*.out
+paper/*.synctex.gz
+paper/*.fdb_latexmk
+paper/*.fls
+
+# editors
+.vscode/
+.idea/
+.ipynb_checkpoints/
+
+# transient installer files
+mamba*

@@ -1,0 +1,36 @@
+# --- core -------------------------------------------------------------------
+numpy>=1.26
+pyyaml>=6.0
+tqdm>=4.66
+orjson>=3.10
+python-dotenv>=1.0
+huggingface_hub>=0.24
+
+# --- evaluation (official metric) -------------------------------------------
+pytrec_eval-terrier>=0.5.6
+
+# --- sparse retrieval -------------------------------------------------------
+bm25s[core]>=0.2.6          # fast in-memory BM25 (numba/scipy backend)
+PyStemmer>=2.2
+
+# --- dense retrieval / reranking (CPU works; GPU strongly recommended) ------
+torch>=2.3
+sentence-transformers>=3.0
+transformers>=4.44
+faiss-cpu>=1.8
+
+# --- vector + graph databases ----------------------------------------------
+qdrant-client>=1.10         # vector DB with payload (metadata) filtering
+networkx>=3.3               # in-process temporal knowledge graph
+neo4j>=5.20                 # optional: external graph DB backend
+
+# --- metadata extraction ----------------------------------------------------
+dateparser>=1.2
+spacy>=3.7
+
+# --- LLM access (OpenAI-compatible: OpenAI, vLLM, Ollama, OpenRouter, ...) --
+openai>=1.40
+
+# --- dev --------------------------------------------------------------------
+pytest>=8.0
+ruff>=0.6

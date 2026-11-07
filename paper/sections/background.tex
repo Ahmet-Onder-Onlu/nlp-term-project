@@ -1,0 +1,24 @@
+\section{Background}
+\label{sec:background}
+
+\paragraph{Task.} Track~1 of RETECO (TEMPO) contains 1{,}730 train/dev queries over 13 domains
+(blockchain, social sciences, applied and STEM StackExchange sites), each with its own corpus
+(1{,}167{,}159 documents in total, v1.1). In Sub-track~1a a system ranks documents for the whole
+query; in Sub-track~1b it ranks documents for each of 3{,}976 decomposed reasoning steps. The
+official metric is binary nDCG@10, averaged per domain and then macro-averaged across domains.
+Train/dev splits are 70/30 per domain; the hidden test set has $\sim$350 newly annotated queries.
+
+\paragraph{Guidance annotations.} For train/dev queries, TEMPO additionally releases
+\emph{query guidance}: whether the query is temporal, its temporal intent, expected granularity,
+time anchors, temporal events and a step-wise retrieval plan, plus per-passage temporal
+annotations. These are unavailable at test time; \sys uses them only as supervision.
+
+\paragraph{Related work.}
+\emph{Hybrid retrieval and fusion:} BM25 \citep{robertson2009bm25}, dense bi-encoders
+\citep{karpukhin2020dpr,xiao2023cpack}, and reciprocal rank fusion \citep{cormack2009rrf}.
+\emph{LLM-based query expansion and reranking:} HyDE \citep{gao2023hyde} and listwise LLM
+reranking \citep{sun2023rankgpt}. \emph{Structure-aware RAG:} hierarchical summarisation
+\citep{sarthi2024raptor} and graph-based retrieval \citep{edge2024graphrag,gutierrez2024hipporag}.
+\emph{Temporal IR:} temporal expression tagging \citep{strotgen2010heideltime} and time-aware
+ranking \citep{campos2014survey}. \emph{Reasoning-intensive retrieval:} BRIGHT \citep{su2025bright}.
+\todo{position \sys relative to TEMPO's reported best systems}

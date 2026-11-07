@@ -1,0 +1,62 @@
+\section{System Overview}
+\label{sec:system}
+
+\begin{figure*}[t]
+  \centering
+  \fbox{\parbox{0.95\textwidth}{\centering\vspace{2.5cm}\todo{Pipeline figure: offline indexing
+  (chunking, BM25, dense/Qdrant, metadata, temporal KG) $\rightarrow$ online query analysis
+  $\rightarrow$ six channels $\rightarrow$ weighted RRF + temporal prior $\rightarrow$ cross-encoder
+  $\rightarrow$ LLM listwise}\vspace{2.5cm}}}
+  \caption{Overview of \sys.}
+  \label{fig:overview}
+\end{figure*}
+
+Figure~\ref{fig:overview} summarises \sys. All stages operate per domain.
+
+\subsection{Document Processing and Metadata}
+\label{sec:metadata}
+Documents are split into 200-word passages with 40-word overlap (at most 64 per document);
+document scores are aggregated with MaxP. For each document we extract a \emph{temporal profile}:
+explicit years, ranges, month--year and ISO dates, decades and centuries, normalised to a set of
+years with a granularity label, and relative expressions (``two weeks ago'', ``no longer''). We
+also store a proxy title, an extractive short description and salient entities.
+\todo{coverage statistics: \% docs with $\geq$1 year, per domain}
+
+\subsection{Indexes}
+\textbf{Sparse}: Lucene-variant BM25 ($k_1{=}0.9$, $b{=}0.4$) over passages.
+\textbf{Dense}: \todo{encoder} embeddings in a vector database (Qdrant) whose payload carries the
+temporal profile, enabling year-window filtering.
+\textbf{Temporal knowledge graph}: a graph with document, entity and year nodes and
+\textsc{Mentions}, \textsc{RefersTo} and \textsc{ActiveIn} edges; retrieval uses personalised
+PageRank seeded with the query's entities and years.
+
+\subsection{Guidance-Distilled Query Analysis}
+\label{sec:query}
+An LLM receives $n$ train-split (query, guidance) pairs as demonstrations and outputs, for a new
+query, the TEMPO schema (temporal intent, granularity, anchors, events, retrieval plan) extended
+with retrieval fields: an inferred year window, entities, a keyword query and a HyDE passage.
+\todo{analyzer accuracy vs.\ gold guidance on dev: intent accuracy, window overlap}
+
+\subsection{Multi-Channel Retrieval and Fusion}
+Six channels are fused with weighted RRF,
+$s(d) = \sum_{c} w_c / (k + \mathrm{rank}_c(d))$, $k{=}60$:
+BM25 on the raw query, BM25 on the keyword query, RRF over BM25 runs of the sub-queries,
+dense on the query, dense on the HyDE passage, and KG-PPR.
+
+\subsection{Temporal-Alignment Prior}
+The fused score is interpolated with a temporal alignment term,
+\begin{equation}
+  s'(d) = (1-\lambda)\,\widehat{s}(d) + \lambda\, T(q,d),
+\end{equation}
+where $\widehat{s}$ is min--max normalised and $T(q,d)$ is the fraction of the query's window
+years matched by the document's years ($\pm1$ year). $\lambda$ is tuned on train.
+
+\subsection{Reranking}
+A cross-encoder (\todo{model}) scores the top-100 candidates rendered as
+``[years] title --- passage''. Finally, an LLM reranks the top-40 with a RankGPT-style
+sliding window; its prompt contains the analysed temporal need and instructs the model to prefer
+temporally aligned evidence.
+
+\subsection{Sub-track 1b}
+For each step, the query is the parent question's title concatenated with the step instruction;
+the parent query's analysis (window, entities) is shared across its steps.

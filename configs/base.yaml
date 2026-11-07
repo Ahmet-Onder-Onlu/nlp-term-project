@@ -1,0 +1,68 @@
+# ChronoFuse base configuration. Experiments inherit from this file and override fields.
+name: base
+
+paths:
+  data: data/raw/reteco
+  indexes: data/indexes
+
+chunking:
+  size: 200          # words per passage
+  overlap: 40
+  max_passages: 64   # cap for very long documents
+
+bm25:
+  k1: 0.9            # matches the official baseline
+  b: 0.4
+
+dense:
+  enabled: false
+  model: BAAI/bge-small-en-v1.5
+  query_prefix: "Represent this sentence for searching relevant passages: "
+  doc_prefix: ""
+  batch_size: 64
+  max_seq_length: 256
+
+kg:
+  enabled: false
+  max_entity_df: 0.05
+
+query:
+  analyzer: rule     # rule | llm
+  num_demos: 3       # guidance-distilled few-shot demonstrations (train split)
+
+llm:
+  model: null        # null -> $LLM_MODEL from .env
+  temperature: 0.0
+
+retrieval:
+  depth: 100
+
+# Channel weights for weighted RRF (0 disables a channel).
+channels:
+  bm25_query: 1.0
+  bm25_keywords: 0.0
+  bm25_subqueries: 0.0
+  dense_query: 0.0
+  dense_hyde: 0.0
+  kg: 0.0
+
+fusion:
+  rrf_k: 60
+
+temporal:
+  lambda: 0.0        # weight of the temporal-alignment prior
+  tolerance: 1       # +-years counted as a match
+
+rerank:
+  cross_encoder:
+    enabled: false
+    model: BAAI/bge-reranker-v2-m3
+    top_n: 100
+  llm:
+    enabled: false
+    top_n: 40
+    window: 20
+    step: 10
+
+steps:
+  include_title: true   # 1b: prepend the parent query title to the step instruction

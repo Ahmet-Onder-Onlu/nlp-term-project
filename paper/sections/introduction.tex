@@ -1,0 +1,29 @@
+\section{Introduction}
+\label{sec:intro}
+
+Retrieval-augmented generation (RAG) systems assume that the retriever surfaces evidence that is
+\emph{valid for the question being asked}. For temporally grounded questions---``Why was there a
+jump in transactions per block in 2023?''---validity depends on time: a passage about the right
+topic but the wrong period is misleading evidence. The RETECO shared task
+\citep{abdallah2026tempo,ali2026recor} operationalises this with TEMPO, a 13-domain benchmark of
+StackExchange questions whose relevant passages must be both topical and temporally aligned.
+
+The official BM25 baseline reaches only 0.108--0.118 nDCG@10 on Track~1, far below its
+0.44 on the conversational Track~2, confirming that ``temporal grounding is not a keyword
+problem''. We hypothesise three reasons: (1)~queries often express time \emph{implicitly}
+(``after the halving'', ``two weeks ago''), (2)~relevant passages frequently share few terms
+with the question, and (3)~nothing in a bag-of-words ranking prefers documents from the
+right period.
+
+\sys addresses each: \todo{one sentence per component, mapped to (1)--(3)}.
+
+Our contributions are:
+\begin{itemize}
+  \item A metadata layer that attaches normalised temporal profiles, entities and short
+        descriptions to 1.17M documents and exposes them to every retrieval and reranking stage.
+  \item \emph{Guidance distillation}: using TEMPO's train-split query guidance as demonstrations so
+        an LLM emits the benchmark's own temporal annotation schema for unseen queries.
+  \item A six-channel hybrid retriever (sparse, dense, HyDE, sub-query, temporal knowledge graph)
+        with weighted RRF and a temporal-alignment prior, plus a temporal-aware listwise reranker.
+  \item Ablations and per-domain / per-intent analyses on all 13 domains.
+\end{itemize}

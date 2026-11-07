@@ -1,0 +1,34 @@
+\section{Results}
+\label{sec:results}
+
+\begin{table}[t]
+  \centering
+  \small
+  \begin{tabular}{lcccc}
+    \toprule
+    & \multicolumn{2}{c}{\textbf{1a}} & \multicolumn{2}{c}{\textbf{1b}} \\
+    \cmidrule(lr){2-3}\cmidrule(lr){4-5}
+    \textbf{System} & train & dev & train & dev \\
+    \midrule
+    BM25 (official)          & .108 & .115 & .102 & .118 \\
+    \midrule
+    E0 BM25 passages+MaxP    & -- & -- & -- & -- \\
+    E1 + temporal prior      & -- & -- & -- & -- \\
+    E2 + dense + KG (RRF)    & -- & -- & -- & -- \\
+    E3 \sys (full)           & -- & -- & -- & -- \\
+    \bottomrule
+  \end{tabular}
+  \caption{Macro nDCG@10 on RETECO Track~1 (v1.1). Official baseline from the starter kit.}
+  \label{tab:main}
+\end{table}
+
+\paragraph{Main results.} \todo{Table~\ref{tab:main}}
+
+\paragraph{Ablations.} \todo{remove one channel / component at a time from E3}
+
+\paragraph{Per-domain analysis.} \todo{Figure: per-domain nDCG@10, BM25 vs.\ \sys}
+
+\paragraph{Temporal intent analysis.} \todo{nDCG@10 grouped by gold temporal intent / reasoning
+class from guidance; temporal diagnostics TP@10, TR@10, TC@10}
+
+\paragraph{Error analysis.} \todo{qualitative examples}

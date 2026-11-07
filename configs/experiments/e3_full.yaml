@@ -1,0 +1,18 @@
+# E3: full ChronoFuse — guidance-distilled LLM query analysis (keywords, sub-queries, HyDE),
+# hybrid retrieval + KG, temporal prior, cross-encoder and temporal-aware LLM listwise reranking.
+inherit: e2_hybrid.yaml
+name: e3_full
+query:
+  analyzer: llm
+channels:
+  bm25_query: 1.0
+  bm25_keywords: 1.0
+  bm25_subqueries: 0.7
+  dense_query: 1.0
+  dense_hyde: 1.0
+  kg: 0.3
+rerank:
+  cross_encoder:
+    enabled: true
+  llm:
+    enabled: true

@@ -1,0 +1,5 @@
+# E1: BM25 + rule-based temporal-alignment prior (no LLM, no neural models).
+inherit: ../base.yaml
+name: e1_bm25_temporal
+temporal:
+  lambda: 0.15

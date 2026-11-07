@@ -1,0 +1,11 @@
+\section{Experimental Setup}
+\label{sec:setup}
+
+\paragraph{Data and protocol.} We use RETECO v1.1. Hyperparameters ($\lambda$, channel weights,
+number of demonstrations) are tuned on the train split; we report dev results once per
+configuration. Scoring follows the official protocol: \texttt{pytrec\_eval} \texttt{ndcg\_cut\_10},
+per-domain mean, macro-average over 13 domains; topics without a ranking count as zero.
+
+\paragraph{Models.} \todo{dense encoder, cross-encoder, LLM (name + version), API vs.\ local}
+
+\paragraph{Compute.} \todo{hardware, index build time, per-query latency, LLM cost}

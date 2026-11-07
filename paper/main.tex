@@ -1,0 +1,51 @@
+% SemEval-2027 Task 1 (RETECO) system description paper — ACL format.
+% Compile: latexmk -pdf main.tex   (or upload the paper/ folder to Overleaf)
+\documentclass[11pt]{article}
+
+% "review" = anonymous submission; "final" = camera-ready; "preprint" = arXiv / course report.
+\usepackage[final]{acl}
+
+\usepackage{times}
+\usepackage{latexsym}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{microtype}
+\usepackage{inconsolata}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\usepackage{xspace}
+
+\newcommand{\sys}{\textsc{ChronoFuse}\xspace}
+\newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
+
+\title{\sys at SemEval-2027 Task 1: Metadata- and Time-Aware Hybrid Retrieval \\
+       with Guidance-Distilled Temporal Query Understanding}
+
+\author{Author One \\
+  Istanbul Technical University \\
+  \texttt{onlu26@itu.edu.tr} \\\And
+  Author Two \\
+  Istanbul Technical University \\
+  \texttt{\todo{email}} \\}
+
+\begin{document}
+\maketitle
+
+\input{sections/abstract}
+\input{sections/introduction}
+\input{sections/background}
+\input{sections/system}
+\input{sections/setup}
+\input{sections/results}
+\input{sections/conclusion}
+\input{sections/limitations}
+
+\bibliography{references,reteco_refs}
+
+\appendix
+\input{sections/appendix}
+
+\end{document}
